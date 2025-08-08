@@ -2,10 +2,18 @@ package com.koedame.bbs.api.dto.comment;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class CommentDto {
+  
   private Long id;
+  
+  @NotBlank(message = "投稿者名は必須です")
   private String author;
+
+  @NotBlank(message = "コメント内容は必須です")
   private String content;
+  
   private LocalDateTime createdAt;
 
   // ゲッター/セッター

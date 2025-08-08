@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.koedame.bbs.api.application.postthread.PostThreadService;
 import com.koedame.bbs.api.domain.postthread.PostThread;
+import com.koedame.bbs.api.dto.postthread.CreatePostThreadRequest;
 import com.koedame.bbs.api.dto.postthread.PostThreadDto;
 import com.koedame.bbs.api.mapper.PostThreadMapper;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/threads")
@@ -34,8 +37,8 @@ public class PostThreadController {
   }
 
   @PostMapping
-  public ResponseEntity<PostThreadDto> createThread(@RequestBody CreateThreadRequest request) {
-    PostThread thread = postThreadService.createThread(request.title());
+  public ResponseEntity<PostThreadDto> createThread(@RequestBody @Valid CreatePostThreadRequest request) {
+    PostThread thread = postThreadService.createThread(request.getTitle());
     PostThreadDto dto = postThreadMapper.toDto(thread);
     return ResponseEntity.status(HttpStatus.CREATED).body(dto);
   }
@@ -46,6 +49,4 @@ public class PostThreadController {
     PostThreadDto dto = postThreadMapper.toDto(thread);
     return ResponseEntity.ok(dto);
   }
-
-  public record CreateThreadRequest(String title) {}
 }

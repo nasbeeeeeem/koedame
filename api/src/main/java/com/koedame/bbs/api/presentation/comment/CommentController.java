@@ -15,7 +15,10 @@ import com.koedame.bbs.api.application.comment.CommentService;
 import com.koedame.bbs.api.application.postthread.PostThreadService;
 import com.koedame.bbs.api.domain.comment.Comment;
 import com.koedame.bbs.api.dto.comment.CommentDto;
+import com.koedame.bbs.api.dto.comment.CreateCommentRequest;
 import com.koedame.bbs.api.mapper.CommentMapper;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/threads/{threadId}/comments")
@@ -36,11 +39,12 @@ public class CommentController {
   }
 
   @PostMapping
-  public ResponseEntity<CommentDto> addComment(@PathVariable("id") Long threadId, @RequestBody AddCommentRequest request) {
-    Comment comment = commentService.addComment(threadId, request.author(), request.content());
+  public ResponseEntity<CommentDto> addComment(
+    @PathVariable("id") Long threadId,
+    @RequestBody @Valid CreateCommentRequest request
+  ) {
+    Comment comment = commentService.addComment(threadId, request.getAuthor(), request.getContent());
     CommentDto dto = commentMapper.toDto(comment);
     return ResponseEntity.status(HttpStatus.CREATED).body(dto);
   }
-
-  public record AddCommentRequest(String author, String content) {}
 }
