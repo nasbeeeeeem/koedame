@@ -1,4 +1,4 @@
-package com.koedame.bbs.domain.postthread;
+package com.koedame.bbs.api.domain.postthread;
 
 import java.util.List;
 import java.util.Optional;

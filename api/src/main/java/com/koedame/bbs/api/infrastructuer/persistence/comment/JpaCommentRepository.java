@@ -1,12 +1,12 @@
-package com.koedame.bbs.infrastructuer.persistence.comment;
+package com.koedame.bbs.api.infrastructuer.persistence.comment;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.koedame.bbs.domain.comment.Comment;
-import com.koedame.bbs.domain.comment.CommentRepository;
+import com.koedame.bbs.api.domain.comment.Comment;
+import com.koedame.bbs.api.domain.comment.CommentRepository;
 
 @Repository
 public class JpaCommentRepository implements CommentRepository {

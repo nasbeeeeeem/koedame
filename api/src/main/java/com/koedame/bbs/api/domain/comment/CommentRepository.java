@@ -1,4 +1,4 @@
-package com.koedame.bbs.domain.comment;
+package com.koedame.bbs.api.domain.comment;
 
 import java.util.List;
 import java.util.Optional;

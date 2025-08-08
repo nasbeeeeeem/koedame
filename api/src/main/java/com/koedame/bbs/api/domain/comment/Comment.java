@@ -1,8 +1,8 @@
-package com.koedame.bbs.domain.comment;
+package com.koedame.bbs.api.domain.comment;
 
 import java.time.LocalDateTime;
 
-import com.koedame.bbs.domain.postthread.PostThread;
+import com.koedame.bbs.api.domain.postthread.PostThread;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

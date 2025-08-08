@@ -1,12 +1,12 @@
-package com.koedame.bbs.infrastructuer.persistence.postthread;
+package com.koedame.bbs.api.infrastructuer.persistence.postthread;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.koedame.bbs.domain.postthread.PostThread;
-import com.koedame.bbs.domain.postthread.PostThreadRepository;
+import com.koedame.bbs.api.domain.postthread.PostThread;
+import com.koedame.bbs.api.domain.postthread.PostThreadRepository;
 
 @Repository
 public class JpaPostThreadRepository implements PostThreadRepository {

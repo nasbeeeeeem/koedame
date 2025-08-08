@@ -1,10 +1,10 @@
-package com.koedame.bbs.domain.postthread;
+package com.koedame.bbs.api.domain.postthread;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.koedame.bbs.domain.comment.Comment;
+import com.koedame.bbs.api.domain.comment.Comment;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
