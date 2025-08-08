@@ -11,27 +11,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.koedame.bbs.api.application.comment.CommentService;
+import com.koedame.bbs.api.application.postthread.PostThreadService;
 import com.koedame.bbs.api.domain.comment.Comment;
+import com.koedame.bbs.api.dto.comment.CommentDto;
+import com.koedame.bbs.api.mapper.CommentMapper;
 
 @RestController
 @RequestMapping("/api/threads/{threadId}/comments")
 public class CommentController {
-  
-  private final CommentService commentService;
 
-  public CommentController(CommentService commentService) {
+  private final CommentService commentService;
+  private final CommentMapper commentMapper;
+
+  public CommentController(CommentService commentService, PostThreadService postThreadService, CommentMapper commentMapper) {
     this.commentService = commentService;
+    this.commentMapper = commentMapper;
   }
 
   @GetMapping
-  public ResponseEntity<List<Comment>> getComments(@PathVariable("id") Long threadId) {
-    return ResponseEntity.ok(commentService.getCommentsByThreadId(threadId));
+  public List<CommentDto> getComments(@PathVariable("id") Long threadId) {
+    List<Comment> comments = commentService.getCommentsByThreadId(threadId);
+    return commentMapper.toDtoList(comments);
   }
 
   @PostMapping
-  public ResponseEntity<Comment> addComment(@PathVariable("id") Long threadId, @RequestBody AddCommentRequest request) {
+  public CommentDto addComment(@PathVariable("id") Long threadId, @RequestBody AddCommentRequest request) {
     Comment comment = commentService.addComment(threadId, request.author(), request.content());
-    return ResponseEntity.ok(comment);
+    return commentMapper.toDto(comment);
   }
 
   public record AddCommentRequest(String author, String content) {}
