@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: koedame
+
+  datasource:
+    url: jdbc:h2:mem:bbsdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: update  # create / create-drop / update / none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false  # DDD推奨。N+1問題を避けるためfalse
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false  # DTOでエラー回避
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
