@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,6 +21,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "comments")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Comment {
   
   @Id
@@ -36,7 +38,7 @@ public class Comment {
   @JoinColumn(name = "thread_id", nullable = false)
   private PostThread postThread;
 
-  public Comment(String author, String content) {
+  public Comment(PostThread postThread, String author, String content) {
     this.author = author;
     this.content = content;
     this.createdAt = LocalDateTime.now();
