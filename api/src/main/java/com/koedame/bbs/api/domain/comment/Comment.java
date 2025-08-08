@@ -35,7 +35,7 @@ public class Comment {
   private LocalDateTime createdAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "thread_id", nullable = false)
+  @JoinColumn(name = "post_thread_id", nullable = false)
   private PostThread postThread;
 
   public Comment(PostThread postThread, String author, String content) {

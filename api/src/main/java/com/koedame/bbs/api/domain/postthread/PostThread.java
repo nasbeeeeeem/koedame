@@ -30,7 +30,7 @@ public class PostThread {
 
   private LocalDateTime createdAt;
 
-  @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "postThread", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Comment> comments = new ArrayList<>();
 
   public PostThread(String title) {
