@@ -2,6 +2,7 @@ package com.koedame.bbs.api.presentation.comment;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,15 +30,16 @@ public class CommentController {
   }
 
   @GetMapping
-  public List<CommentDto> getComments(@PathVariable("id") Long threadId) {
+  public ResponseEntity<List<CommentDto>> getComments(@PathVariable("id") Long threadId) {
     List<Comment> comments = commentService.getCommentsByThreadId(threadId);
-    return commentMapper.toDtoList(comments);
+    return ResponseEntity.ok(commentMapper.toDtoList(comments));
   }
 
   @PostMapping
-  public CommentDto addComment(@PathVariable("id") Long threadId, @RequestBody AddCommentRequest request) {
+  public ResponseEntity<CommentDto> addComment(@PathVariable("id") Long threadId, @RequestBody AddCommentRequest request) {
     Comment comment = commentService.addComment(threadId, request.author(), request.content());
-    return commentMapper.toDto(comment);
+    CommentDto dto = commentMapper.toDto(comment);
+    return ResponseEntity.status(HttpStatus.CREATED).body(dto);
   }
 
   public record AddCommentRequest(String author, String content) {}
