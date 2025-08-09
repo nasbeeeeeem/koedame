@@ -2,9 +2,14 @@ package com.koedame.bbs.api.dto.postthread;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class PostThreadDto {
   private Long id;
+
+  @NotBlank(message = "タイトルは必須です")
   private String title;
+  
   private LocalDateTime createdAt;
 
   // ゲッター／セッター

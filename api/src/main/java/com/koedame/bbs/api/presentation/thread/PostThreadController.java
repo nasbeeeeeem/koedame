@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.koedame.bbs.api.application.postthread.PostThreadService;
+import com.koedame.bbs.api.common.response.ApiResponse;
 import com.koedame.bbs.api.domain.postthread.PostThread;
 import com.koedame.bbs.api.dto.postthread.CreatePostThreadRequest;
 import com.koedame.bbs.api.dto.postthread.PostThreadDto;
@@ -31,22 +32,24 @@ public class PostThreadController {
   }
 
   @GetMapping
-  public ResponseEntity<List<PostThreadDto>> getAllThreads() {
+  public ResponseEntity<ApiResponse<List<PostThreadDto>>> getAllThreads() {
     List<PostThread> threads = postThreadService.getAllThreads();
-    return ResponseEntity.ok(postThreadMapper.toDtoList(threads));
+    List<PostThreadDto> dtos = postThreadMapper.toDtoList(threads);
+    return ResponseEntity.ok(ApiResponse.success("OK", dtos));
   }
 
   @PostMapping
-  public ResponseEntity<PostThreadDto> createThread(@RequestBody @Valid CreatePostThreadRequest request) {
+  public ResponseEntity<ApiResponse<PostThreadDto>> createThread(@RequestBody @Valid CreatePostThreadRequest request) {
     PostThread thread = postThreadService.createThread(request.getTitle());
     PostThreadDto dto = postThreadMapper.toDto(thread);
-    return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    ApiResponse<PostThreadDto> body = ApiResponse.success("Thread created", dto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(body);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<PostThreadDto> getThread(@PathVariable("id") Long id) {
+  public ResponseEntity<ApiResponse<PostThreadDto>> getThread(@PathVariable("id") Long id) {
     PostThread thread  = postThreadService.getThreadById(id);
     PostThreadDto dto = postThreadMapper.toDto(thread);
-    return ResponseEntity.ok(dto);
+    return ResponseEntity.ok(ApiResponse.success("OK", dto));
   }
 }

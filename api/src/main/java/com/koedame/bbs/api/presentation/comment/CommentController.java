@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.koedame.bbs.api.application.comment.CommentService;
 import com.koedame.bbs.api.application.postthread.PostThreadService;
+import com.koedame.bbs.api.common.response.ApiResponse;
 import com.koedame.bbs.api.domain.comment.Comment;
 import com.koedame.bbs.api.dto.comment.CommentDto;
 import com.koedame.bbs.api.dto.comment.CreateCommentRequest;
@@ -33,18 +34,19 @@ public class CommentController {
   }
 
   @GetMapping
-  public ResponseEntity<List<CommentDto>> getComments(@PathVariable("id") Long threadId) {
+  public ResponseEntity<ApiResponse<List<CommentDto>>> getComments(@PathVariable("id") Long threadId) {
     List<Comment> comments = commentService.getCommentsByThreadId(threadId);
-    return ResponseEntity.ok(commentMapper.toDtoList(comments));
+    List<CommentDto> dtos = commentMapper.toDtoList(comments);
+    return ResponseEntity.ok(ApiResponse.success("OK", dtos));
   }
 
   @PostMapping
-  public ResponseEntity<CommentDto> addComment(
+  public ResponseEntity<ApiResponse<CommentDto>> addComment(
     @PathVariable("id") Long threadId,
     @RequestBody @Valid CreateCommentRequest request
   ) {
     Comment comment = commentService.addComment(threadId, request.getAuthor(), request.getContent());
     CommentDto dto = commentMapper.toDto(comment);
-    return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Comment created", dto));
   }
 }

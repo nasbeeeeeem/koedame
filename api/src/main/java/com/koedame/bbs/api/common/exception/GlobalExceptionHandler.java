@@ -1,81 +1,91 @@
+// package: com.koedame.bbs.api.common.exception
+
 package com.koedame.bbs.api.common.exception;
 
-import java.util.List;
-
+import com.koedame.bbs.api.common.response.ApiResponse;
+import com.koedame.bbs.api.common.response.ApiResponse.FieldError;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.koedame.bbs.api.common.response.ApiErrorResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ConstraintViolationException;
-
+@ControllerAdvice
 public class GlobalExceptionHandler {
-  
-  /**
-   * @Valid のバリデーションエラー
-   */
+
+  private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+  // @Valid のバリデーションエラー
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ApiErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
-    List<ApiErrorResponse.FieldError> errorList = ex.getBindingResult().getFieldErrors().stream()
-      .map(err -> new ApiErrorResponse.FieldError(err.getField(), err.getDefaultMessage()))
-      .toList();
+  public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException ex) {
+    BindingResult br = ex.getBindingResult();
+    List<FieldError> errors = br.getFieldErrors().stream()
+      .map(fe -> new FieldError(fe.getField(), fe.getDefaultMessage()))
+      .collect(Collectors.toList());
 
-    ApiErrorResponse response = new ApiErrorResponse(
-      "ERROR",
-      "Validation failed",
-      errorList
-    );
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    ApiResponse<?> body = ApiResponse.error("Validation failed", errors);
+    logger.debug("Validation error: {}", errors);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
   }
 
-  /**
-   * @Validated のConstraintViolationException
-   */
+  // @Validated (パラメータや service 層での ConstraintViolation)
   @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<ApiErrorResponse> handleConstraintViolatio(ConstraintViolationException ex) {
-    List<ApiErrorResponse.FieldError> errorList = ex.getConstraintViolations().stream()
-      .map(violation -> new ApiErrorResponse.FieldError(
-        violation.getPropertyPath().toString(),
-        violation.getMessage()
-      ))
-      .toList();
+  public ResponseEntity<ApiResponse<?>> handleConstraintViolation(ConstraintViolationException ex) {
+    List<FieldError> errors = ex.getConstraintViolations().stream()
+      .map(this::toFieldError)
+      .collect(Collectors.toList());
 
-    ApiErrorResponse response = new ApiErrorResponse(
-      "ERROR",
-      "Validation failed",
-      errorList
-    );
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    ApiResponse<?> body = ApiResponse.error("Validation failed", errors);
+    logger.debug("Constraint violations: {}", errors);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
   }
 
-  /**
-   * データが見つからない場合
-   */
+  private FieldError toFieldError(ConstraintViolation<?> violation) {
+    // propertyPath は "createThread.arg0.title" のようになることがあるので、見やすいフィールド名に整形
+    String path = violation.getPropertyPath() == null ? "" : violation.getPropertyPath().toString();
+    String field = extractLastPathNode(path);
+    return new FieldError(field, violation.getMessage());
+  }
+
+  private String extractLastPathNode(String propertyPath) {
+    if (propertyPath == null || propertyPath.isEmpty()) return propertyPath;
+    int lastDot = propertyPath.lastIndexOf('.');
+    if (lastDot >= 0 && lastDot < propertyPath.length() - 1) {
+      return propertyPath.substring(lastDot + 1);
+    }
+    return propertyPath;
+  }
+
+  // データが見つからない（404）
   @ExceptionHandler(EntityNotFoundException.class)
-  public ResponseEntity<ApiErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
-    ApiErrorResponse response = new ApiErrorResponse(
-      "ERROR",
-      ex.getMessage(),
-      List.of()
-    );
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  public ResponseEntity<ApiResponse<?>> handleEntityNotFound(EntityNotFoundException ex) {
+    ApiResponse<?> body = ApiResponse.error(ex.getMessage() == null ? "Not Found" : ex.getMessage());
+    logger.info("Entity not found: {}", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
   }
 
-  /**
-   * その他の例外
-   */
+  // ビジネスロジックの引数エラー (400)
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ApiResponse<?>> handleIllegalArgument(IllegalArgumentException ex) {
+    ApiResponse<?> body = ApiResponse.error(ex.getMessage() == null ? "Bad request" : ex.getMessage());
+    logger.info("Illegal arg: {}", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  // それ以外の例外 (500)
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ApiErrorResponse> handleGeneralException(Exception ex) {
-    ApiErrorResponse response = new ApiErrorResponse(
-      "ERROR",
-      ex.getMessage(),
-      List.of()
-    );
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+  public ResponseEntity<ApiResponse<?>> handleAnyException(Exception ex) {
+    logger.error("Unhandled exception", ex);
+    ApiResponse<?> body = ApiResponse.error("Internal server error");
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
   }
 }
-
-
