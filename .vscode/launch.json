@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-KoedameApplication<api>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.koedame.bbs.api.KoedameApplication",
+      "projectName": "api",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
